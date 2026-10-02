@@ -1,0 +1,48 @@
+name: Update Antigravity Hub
+
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check the official download page
+        id: check
+        run: python3 update.py --check --github-output "$GITHUB_OUTPUT"
+
+      - uses: cachix/install-nix-action@v31
+        if: steps.check.outputs.update == 'true'
+        with:
+          extra_nix_config: experimental-features = nix-command flakes
+
+      - name: Update pinned version and hashes
+        if: steps.check.outputs.update == 'true'
+        run: python3 update.py
+
+      - name: Build the updated package
+        if: steps.check.outputs.update == 'true'
+        run: nix build -L .#antigravity-hub
+
+      - name: Commit update
+        if: steps.check.outputs.update == 'true'
+        env:
+          TARGET_BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sources.json
+          if git diff --cached --quiet; then
+            echo "No source metadata changed."
+            exit 0
+          fi
+          version=$(python3 -c 'import json; print(json.load(open("sources.json"))["version"])')
+          git commit -m "antigravity-hub: update to ${version}"
+          git push origin "HEAD:${TARGET_BRANCH}"

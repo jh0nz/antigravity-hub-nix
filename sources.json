@@ -1,8 +1,8 @@
 {
-  "version": "2.12.2",
-  "buildId": "6298742303883264",
+  "version": "2.19.1",
+  "buildId": "6046815158665216",
   "hashes": {
-    "x86_64-linux": "sha256-/C4q9JpFrv7pVYvOVqqku94A1WDTVDV68bg0qd1DzTM=",
-    "aarch64-linux": "sha256-cgSbIH0cF5qFJKTc8TxPhtjLulmdhF/cRX3g9/ES6Rg="
+    "x86_64-linux": "sha256-cGj6Rxw+WhIl4k5PaDSXdIuEnQjscCMT1JxRjNRfpK8=",
+    "aarch64-linux": "sha256-7FTjnibc7koxphVeGW5Nco0DPBwbxCZvLrC04IALwag="
   }
 }

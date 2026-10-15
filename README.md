@@ -1,6 +1,6 @@
-# Antigravity Hub for Nix
+# Antigravity Hub and CLI for Nix
 
-This flake packages Google's proprietary Antigravity Hub binary for NixOS. The
+This flake packages Google's proprietary Antigravity Hub and CLI binaries for NixOS. The
 recipe and pinned binary hashes are kept here; no Antigravity source code is
 included.
 
@@ -8,6 +8,8 @@ included.
 
 ```sh
 nix build .#antigravity-hub
+nix build .#antigravity-cli
+nix run .#agy -- --version
 ```
 
 ## Automatic updates
@@ -23,6 +25,19 @@ The updater has a non-mutating check mode for local use:
 python3 update.py --check
 ```
 
+The separate **Update Antigravity CLI** workflow checks the official installer’s
+Linux manifests daily, pins the version, URLs and SHA-512 checksums in
+`cli-sources.json`, then builds and checks `agy --version` before committing.
+To update or check the CLI locally:
+
+```sh
+python3 update-cli.py --check
+python3 update-cli.py
+```
+
+Both packages support Linux x86_64 and aarch64 binaries; this flake currently
+exports packages for x86_64-linux.
+
 ## Use as a flake input
 
 After publishing this directory as a GitHub repository, add it to a system flake:
@@ -34,7 +49,19 @@ inputs.antigravity-hub-nix = {
 };
 ```
 
-Then install `inputs.antigravity-hub-nix.packages.${pkgs.system}.antigravity-hub`.
+Install either or both packages:
+
+```nix
+home.packages = [
+  inputs.antigravity-hub-nix.packages.${pkgs.system}.antigravity-hub
+  inputs.antigravity-hub-nix.packages.${pkgs.system}.antigravity-cli
+];
+```
+
+The CLI command is `agy` (`agy` is also a flake package alias). Run `agy` to
+sign in using the official authentication flow. Update the CLI through the flake
+pin and your system rebuild; the Nix store is read-only, so `agy update` cannot
+replace this installation.
 
 ## Distribution
 
